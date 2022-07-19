@@ -1,4 +1,4 @@
-module httptest
+module httpconcurencytest
 
 go 1.18
 

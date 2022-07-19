@@ -1,3 +1,3 @@
 #!/bin/bash
 
-rm -rf ./httptest_*
+rm -rf ./http_concurencytest_*

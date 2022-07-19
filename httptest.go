@@ -22,7 +22,7 @@ var (
 
 func initlog(reqpath string) {
 	logregex := regexp.MustCompile(`[\{\}\[\]\/?.,;:|\)*~!^\_+<>@\#$%&\\\=\(\'\"\n\r]+`)
-	logname := logregex.ReplaceAllString("httptest_"+reqpath, "_")
+	logname := logregex.ReplaceAllString("http_concurencytest_"+reqpath, "_")
 	log = debuglog.DebugLogInit(logname)
 }
 
