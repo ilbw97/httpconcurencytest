@@ -1,4 +1,4 @@
-module curl
+module httptest
 
 go 1.18
 
@@ -14,4 +14,4 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
-replace debuglog => /Users/byeoungwoolee/go/src/debuglog
+//replace debuglog => "github.com/ilbw97/debuglog"
