@@ -52,7 +52,7 @@ func makeRequest(host string, method string) {
 
 	defer res.Body.Close()
 
-	log.Infof("SUCCESS TO POST %v", host)
+	log.Infof("SUCCESS TO POST %v, STATUS IS : %v", host, res.Status)
 
 	return
 
