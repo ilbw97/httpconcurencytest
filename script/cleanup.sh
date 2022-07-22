@@ -1,3 +1,6 @@
 #!/bin/bash
 
-rm -rf ../http_concurencytest_*
+rm -rf ../log
+rm -rf ./*.log
+
+echo "CLEANUP LOGS"

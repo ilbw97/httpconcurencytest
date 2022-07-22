@@ -33,4 +33,12 @@ PLASE ENTER ONLY NUMERIC
 count for goroutines you want to make.
 PLASE ENTER ONLY NUMERIC
 
+### LOOP
+count for loop with interval.
+you can use if you want make request several times with time sleep
+PLASE ENTER ONLY NUMERIC
 
+### interval
+interval for time sleep.
+you can use if you want make request several times with loop
+PLASE ENTER ONLY NUMERIC
