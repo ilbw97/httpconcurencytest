@@ -19,6 +19,7 @@ import (
 var (
 	log *logrus.Logger = &logrus.Logger{}
 	wg  sync.WaitGroup
+	re  result = result{}
 )
 
 type info struct {
@@ -31,6 +32,11 @@ type info struct {
 	loop      *int
 	interval  *int
 	directory *bool
+}
+
+type result struct {
+	success int
+	fail    int
 }
 
 func initlog(reqpath string, directory bool) {
@@ -64,9 +70,13 @@ func makeRequest(host string, method string) {
 	}
 
 	defer res.Body.Close()
-
-	log.Infof("SUCCESS TO POST %v, STATUS IS : %v", host, res.Status)
-
+	if res.StatusCode == http.StatusOK {
+		log.Infof("SUCCESS TO POST %v, STATUS IS : %v", host, res.Status)
+		re.success += 1
+	} else {
+		log.Infof("SUCCESS TO MAKE REQUEST, BUT STATUS IS %v", res.Status)
+		re.fail += 1
+	}
 	return
 
 }
@@ -162,6 +172,9 @@ func main() {
 		log.Infof("WILL SEND %d REQUEST TO %s %d Seconds Later", *option.count, reqpath, *option.interval)
 		time.Sleep(time.Second * time.Duration(*option.interval))
 	}
+
 	wg.Wait()
 	log.Infof("SUCCESS TO SEND %d REQUEST TO %s", cnt, reqpath)
+	log.Infof("STATUS OK : %d, NOT OK : %d", re.success, re.fail)
+
 }
