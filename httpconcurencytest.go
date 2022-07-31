@@ -1,7 +1,12 @@
 package main
 
 import (
+	"bytes"
+	"compress/flate"
+	"compress/gzip"
 	"crypto/tls"
+	"io"
+	"io/ioutil"
 	"regexp"
 	"strconv"
 	"time"
@@ -11,6 +16,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/google/brotli/go/cbrotli"
 	"github.com/ilbw97/debuglog"
 
 	"github.com/sirupsen/logrus"
@@ -37,6 +43,7 @@ type info struct {
 type result struct {
 	success int
 	fail    int
+	blocked int
 }
 
 func initlog(reqpath string, directory bool) {
@@ -70,15 +77,80 @@ func makeRequest(host string, method string) {
 	}
 
 	defer res.Body.Close()
+	blocked := bodyCheck(res, maxsize)
+
 	if res.StatusCode == http.StatusOK {
+		if blocked {
+			re.blocked += 1
+			log.Infof("SUCCESS TO MAKE POST REQUEST TO %v, STATUS IS : %v BUT BLOCKED", host, res.Status)
+		}
 		log.Infof("SUCCESS TO POST %v, STATUS IS : %v", host, res.Status)
 		re.success += 1
 	} else {
-		log.Infof("SUCCESS TO MAKE REQUEST, BUT STATUS IS %v", res.Status)
+		if blocked {
+			re.blocked += 1
+		}
+		log.Infof("SUCCESS TO MAKE POST REQUEST TO %v, BUT STATUS IS %v AND BLOCKED", host, res.Status)
 		re.fail += 1
 	}
 	return
 
+}
+
+var maxsize int64 = 1000 * 1000 * 1
+
+func bodyCheck(res *http.Response, maxsize int64) bool {
+	reader := io.LimitReader(ioutil.NopCloser(res.Body), maxsize)
+	body, err := ioutil.ReadAll(reader)
+	if err != nil {
+		log.Error(err)
+		return false
+	}
+
+	newreader := io.MultiReader(bytes.NewBuffer(body), res.Body)
+	res.Body = ioutil.NopCloser(newreader)
+
+	if len(body) == int(maxsize) {
+		log.Infof("max size over %d", maxsize)
+		return false
+	}
+
+	contentEncoding := res.Header.Get("Content-encoding")
+
+	var decompresser io.ReadCloser
+
+	if contentEncoding == "gzip" {
+		decompresser, err = gzip.NewReader(bytes.NewBuffer(body))
+		if err != nil {
+			log.Error(err)
+			return false
+		}
+
+	} else if contentEncoding == "br" {
+		decompresser = cbrotli.NewReader(bytes.NewBuffer(body))
+	} else if contentEncoding == "deflate" {
+		decompresser = flate.NewReader(bytes.NewBuffer(body))
+	} else {
+		decompresser = nil
+	}
+
+	var plainBody []byte
+
+	if decompresser != nil {
+		plainBody, err = ioutil.ReadAll(decompresser)
+		decompresser.Close()
+		if err != nil {
+			log.Error(err)
+			return false
+		}
+	} else {
+		plainBody = body
+	}
+	if bytes.ContainsAny(plainBody, "Block") {
+		log.Infof("blocked!!!")
+		return true
+	}
+	return false
 }
 
 func checkFlag() *info {
@@ -175,6 +247,6 @@ func main() {
 
 	wg.Wait()
 	log.Infof("SUCCESS TO SEND %d REQUEST TO %s", cnt, reqpath)
-	log.Infof("STATUS OK : %d, NOT OK : %d", re.success, re.fail)
+	log.Infof("STATUS OK : %d, NOT OK : %d, BLOCKED COUNT : %d", re.success, re.fail, re.blocked)
 
 }

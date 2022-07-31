@@ -1,15 +1,16 @@
 module httpconcurencytest
 
-go 1.18
+go 1.17
+
+replace github.com/ilbw97/debuglog => ../debuglog
 
 require (
-	github.com/ilbw97/debuglog v0.0.0-00010101000000-000000000000
+	github.com/google/brotli/go/cbrotli v0.0.0-20220512075048-9801a2c5d6c6
+	github.com/ilbw97/debuglog v0.0.0-20220720072703-f8d4aca3dd9e
 	github.com/sirupsen/logrus v1.9.0
 )
 
 require (
-	golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8 // indirect
+	golang.org/x/sys v0.0.0-20220728004956-3c1f35247d10 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 )
-
-replace github.com/ilbw97/debuglog => ../debuglog
