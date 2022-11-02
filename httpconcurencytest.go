@@ -161,7 +161,7 @@ func checkFlag() *info {
 	option.host = flag.String("host", "", "EX) wordpress.jam10000bo.com")
 	option.method = flag.String("method", "get", "YOU CAN ENTER 'get / put / post / update'. DEFAULT IS GET")
 	option.path = flag.String("path", "/", "EX) /cloud2team. DEFAULT IS /")
-	option.port = flag.String("port", "80", "YOU CAN ENTER ONLY POSITIVE NUMBER. DEFAULT IS 80")
+	option.port = flag.String("port", "", "YOU CAN ENTER ONLY POSITIVE NUMBER. DEFAULT IS nothing")
 	option.count = flag.Int("count", 1, "YOU CAN ENTER ONLY POSITIVE NUMBER. DEFUALT IS 1.")
 	option.loop = flag.Int("loop", 1, "YOU CAN ENTER ONLY POSITIVE NUMBER. DEFUALT IS 1.")
 	option.interval = flag.Int("interval", 0, "YOU CAN ENTER ONLY POSITIVE NUMBER. DEFUALT IS 1.")
@@ -179,10 +179,12 @@ func checkFlag() *info {
 		return nil
 	}
 
-	port, err := strconv.Atoi(*option.port)
-	if err != nil || port <= 0 {
-		flag.Usage()
-		return nil
+	if *option.port != "" {
+		port, err := strconv.Atoi(*option.port)
+		if err != nil || port <= 0 {
+			flag.Usage()
+			return nil
+		}
 	}
 
 	if *option.count <= 0 {
@@ -229,7 +231,13 @@ func main() {
 		return
 	}
 
-	reqpath := *option.protocol + "://" + *option.host + ":" + *option.port + *option.path
+	var reqpath string
+	if *option.port == "" {
+		reqpath = *option.protocol + "://" + *option.host + *option.path
+	} else {
+		reqpath = *option.protocol + "://" + *option.host + ":" + *option.port + *option.path
+	}
+
 	initlog(reqpath, *option.directory)
 
 	wg.Add(*option.count * *option.loop)

@@ -11,6 +11,6 @@ require (
 )
 
 require (
-	golang.org/x/sys v0.0.0-20220728004956-3c1f35247d10 // indirect
+	golang.org/x/sys v0.0.0-20220808155132-1c4a2a72c664 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 )
