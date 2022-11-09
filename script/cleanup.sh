@@ -1,6 +1,17 @@
 #!/bin/bash
 
-rm -rf ../log
-rm -rf ./*.log
+option=$1
 
-echo "CLEANUP LOGS"
+cnt=`find ../log -name "*.log" | wc -l`
+list=`find ../log -name "*.log"`
+echo $cnt
+echo "list : $list"
+
+if [ !-z $option ]; then
+    echo "remove whole directory"
+    rm -rf ../log
+else
+    rm -rf ../log/*.log
+fi
+
+echo "CLEANUP $cnt LOGS"
