@@ -93,7 +93,6 @@ func makeRequest(host string, method string) {
 		log.Infof("SUCCESS TO MAKE POST REQUEST TO %v, BUT STATUS IS %v AND BLOCKED", host, res.Status)
 		re.fail += 1
 	}
-	return
 
 }
 
@@ -146,11 +145,17 @@ func bodyCheck(res *http.Response, maxsize int64) bool {
 	} else {
 		plainBody = body
 	}
-	if bytes.ContainsAny(plainBody, "Block") {
-		log.Infof("blocked!!!")
-		return true
+
+	val, ok := res.Header["X-Aic-Res"]
+	if ok && val != nil {
+		if bytes.ContainsAny(plainBody, "Blocked") {
+			log.Infof("blocked!!!")
+			return true
+		}
 	}
+
 	return false
+
 }
 
 func checkFlag() *info {
@@ -159,7 +164,7 @@ func checkFlag() *info {
 
 	option.protocol = flag.String("protocol", "http", "YOU CAN ENTER http / https. DEFAULT IS http")
 	option.host = flag.String("host", "", "EX) wordpress.jam10000bo.com")
-	option.method = flag.String("method", "get", "YOU CAN ENTER 'get / put / post / update'. DEFAULT IS GET")
+	option.method = flag.String("method", "GET", "YOU CAN ENTER 'GET / PUT / POST / UPDATE'. DEFAULT IS GET")
 	option.path = flag.String("path", "/", "EX) /cloud2team. DEFAULT IS /")
 	option.port = flag.String("port", "", "YOU CAN ENTER ONLY POSITIVE NUMBER. DEFAULT IS nothing")
 	option.count = flag.Int("count", 1, "YOU CAN ENTER ONLY POSITIVE NUMBER. DEFUALT IS 1.")
